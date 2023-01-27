@@ -1,11 +1,12 @@
 const User = require("../models/User")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const { default:mongoose } = require("mongoose")
+// const { default:mongoose } = require("mongoose")
 
-module.exports = class UserController{
+module.exports = class AuthController{
+
     static async register(req,res){
-        console.log(req.body);
+
         const userName = req.body.name
         const userEmail = req.body.email
         const userPassword = req.body.password
@@ -17,6 +18,7 @@ module.exports = class UserController{
                 error: "Os campos de nome, e-mail e senha são obrigatórios."
             })
         }
+
         const emailExists = await User.findOne({
             email:userEmail
         })
@@ -58,6 +60,51 @@ module.exports = class UserController{
                 error
             })
         }
-    }
+    };
+
+    static async login(req,res){
+        const userEmail = req.body.email
+        const userPassword = req.body.password
+
+        if(userEmail == null || userPassword == null){
+            return res.status(400).json({
+                error:"E-mail e senha são obrigatórios."
+            });
+        }
+        const userExists = await User.findOne({
+            email: userEmail
+        })
+
+        if(!userExists){
+            return res.status(400).json({
+                error: "Não há nenhum usuário cadastrado com o e-mail informado."
+            });
+        }
+
+        const checkPassword = await bcrypt.compare(userPassword, userExists.password)
+
+        if(!checkPassword){
+            return res.status(422).json({
+                error: "Senha inválida."
+            })
+        }
+
+        try {
+            const newToken = jwt.sign({
+                name: userExists.name,
+                id: userExists._id
+            },"supersecret")
+            res.json({
+                error:null,
+                msg:"Login realizado!",
+                token: newToken,
+                userId: userExists._id
+            })
+        } catch (error) {
+            res.status(400).json({
+                error
+            })
+        }
+    };
 
 }
