@@ -1,7 +1,6 @@
 const User = require("../models/User")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-// const { default:mongoose } = require("mongoose")
 
 module.exports = class AuthController{
 
