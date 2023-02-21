@@ -46,4 +46,38 @@ module.exports = class TaskController{
         }
 
     }
+    static async getDoneTasks(req,res){
+
+        try {
+            const tasks = await Task.find({
+                done:true
+            })
+            res.json({
+                error:null,
+                msg:"Tarefas encontradas",
+                tasks:tasks
+            })
+            console.log('ACHOU');
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+    static async getPendingTasks(req,res){
+
+        try {
+            const tasks = await Task.find({
+                done:false
+            })
+            res.json({
+                error:null,
+                msg:"Tarefas encontradas",
+                tasks:tasks
+            })
+            console.log('ACHOU');
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
 }
